@@ -8,9 +8,6 @@ bin/*
 .kitchen/
 .kitchen.local.yml
 
-files/default/chefPair.pem
-files/ciarancbbyrne-validator.pem
-files/flipdrop.pem
-files/knife.rb
+files/default/*
 
 attributes/default.rb

@@ -7,7 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 
-# install the packages required to run ruby and gems for the rubies
+# install the packages require to run ruby and gems for rubies
 
 package 'gcc' do
 	action :install

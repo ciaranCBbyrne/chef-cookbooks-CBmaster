@@ -13,7 +13,7 @@ include_recipe 'CBmaster::ruby_env_setup'
 # import the files required for knife and chef
 include_recipe 'CBmaster::import_files'
 
-# update aws credentials
+# update the credentials used to connect to aws
 include_recipe 'CBmaster::update_creds'
 
 # set cron job on node to run after chef-client finishes

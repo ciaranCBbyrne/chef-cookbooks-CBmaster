@@ -13,10 +13,7 @@ cron 'chef_check_in' do
 	command "sudo chef-client"
 end
 
-# Run file which will get space used on the
-# slave set up most recently. When trigger
-# hit start another slave server and bootstrap
-# to chef
+# run slave checker and start new slave server
 cron 'slave_check' do
 	minute '*/10'
 	command "ruby /home/ec2-user/check_slave_capacity.rb"
