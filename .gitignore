@@ -8,9 +8,9 @@ bin/*
 .kitchen/
 .kitchen.local.yml
 
-chefPair
-ciarancbbyrne-validator
-flipdrop
-knife
+files/default/chefPair
+files/ciarancbbyrne-validator
+files/flipdrop
+files/knife
 
 attributes/default.rb
