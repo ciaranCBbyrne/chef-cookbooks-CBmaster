@@ -35,30 +35,45 @@ class CheckSlave
 	def get_capacity(slave_address)
 
 		output = Hash.new
+		begin
+			Timeout::timeout(10) do
+				begin
+					#open connection through ssh
+					Net::SSH.start("#{slave_address.to_s}", 'ec2-user', :keys => 'MYSSHKEYS') do |ssh|
+						# get system memory info from node in json format
+						taken =  ssh.exec!("sudo ohai filesystem") # see chef-cookbooks-CBsql/recipes/update_sudo_tty.rb or this won't be allowed
+						# convert json to hash
+						output = JSON.parse(taken)
 
-		#open connection through ssh
-		Net::SSH.start("#{slave_address.to_s}", 'ec2-user', :keys => 'MYSSHKEYS') do |ssh|
-			# get system memory info from node in json format
-			taken =  ssh.exec!("sudo ohai filesystem") # see chef-cookbooks-CBsql/recipes/update_sudo_tty.rb or this won't be allowed
-			# convert json to hash
-			output = JSON.parse(taken)
+						# get space details from hash
+						kb_size = output['/dev/xvda1']['kb_size'].to_i
+						kb_used = output['/dev/xvda1']['kb_used'].to_i
+						kb_available = output['/dev/xvda1']['kb_available'].to_i
 
-			# get space details from hash
-			kb_size = output['/dev/xvda1']['kb_size'].to_i
-			kb_used = output['/dev/xvda1']['kb_used'].to_i
-			kb_available = output['/dev/xvda1']['kb_available'].to_i
+						# print free memory of node
+						puts slave_address
+						puts "size: #{kb_size} kb"
+						puts "used: #{kb_used} kb"
+						puts "avail: #{kb_available} kb"
 
-			# print free memory of node
-			puts slave_address
-			puts "Time : #{Time.now}"
-			puts "size: #{kb_size} kb"
-			puts "used: #{kb_used} kb"
-			puts "avail: #{kb_available} kb"
+						# if node is 90% launch new slave
+						$capacity_reached = (kb_used.to_i * 100 ) / kb_size.to_i
 
-			# if node is 90% launch new slave
-			$capacity_reached = (kb_used.to_i * 100 ) / kb_size.to_i
-
-			return $capacity_reached
+						return $capacity_reached
+					end
+				rescue Net::SSH::HostKeyMismatch => e
+					puts "Problem connecting to slave."
+					puts "Please wait and try again"
+					retry
+				rescue StandardError => e
+					puts "Something happened!!!"
+					return 0
+				end
+			end
+		rescue Timeout::Error
+			puts "Timed out trying to connect to slave."
+			puts "Please wait and try again"
+			return 0
 		end
 	end
 end
