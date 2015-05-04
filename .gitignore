@@ -1,0 +1,16 @@
+.vagrant
+/cookbooks
+
+# Bundler
+bin/*
+.bundle/*
+
+.kitchen/
+.kitchen.local.yml
+<<<<<<< HEAD
+
+files/default/*
+
+attributes/default.rb
+=======
+>>>>>>> 6d76d2e672525549397ac51326be9cbb80f4f137

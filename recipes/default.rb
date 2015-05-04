@@ -18,3 +18,7 @@ include_recipe 'CBmaster::update_creds'
 
 # set cron job on node to run after chef-client finishes
 include_recipe 'CBmaster::set_cron_jobs'
+
+include_recipe 'selinux::permissive'
+
+include_recipe 'CBmaster::web_setup'

@@ -15,12 +15,12 @@ class LaunchSlave
 
 		# works
 		new_inst = ec2.run_instances(
-			:image_id => 'ami-9d23aeea',
-			:instance_type => 't2.micro',
+			:image_id => "MYIMAGEID",
+			:instance_type => "MYINSTANCESIZE",
 			:min_count => 1,
 			:max_count => 1,
-			:security_groups => ['default'],
-			:key_name => 'chefPair'
+			:security_groups => ['MYSECURITYGROUP'],
+			:key_name => "MYKEYNAME"
 			)
 
 
@@ -35,7 +35,7 @@ class LaunchSlave
 			ec2.wait_until(:instance_status_ok, instance_ids:[new_inst.instances[0].instance_id])
 
 			puts "Bootstrapping #{pub_ip_add}"
-			`knife bootstrap #{pub_ip_add} -x ec2-user --sudo -i /home/ec2-user/chefPair.pem -r recipe[CBsql] -N #{new_node_id}`
+			`knife bootstrap #{pub_ip_add} -x ec2-user --sudo -i /home/ec2-user/MYKEYNAME.pem -r recipe[CBsql] -N #{new_node_id}`
 			puts "Completed launch and bootstrap"
 			
 			# gotta check

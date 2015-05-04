@@ -16,5 +16,5 @@ end
 # run slave checker and start new slave server
 cron 'slave_check' do
 	minute '*/10'
-	command "ruby /home/ec2-user/check_slave_capacity.rb"
+	command "ruby /home/ec2-user/check_and_launch_server.rb"
 end

@@ -1,41 +1,61 @@
 #
 # Cookbook Name:: CBmaster
-# Recipe:: default
+# Recipe:: import_files
 #
 # Copyright 2015, Ciaran Byrne
 #
 # All rights reserved - Do Not Redistribute
 #
 
-# place the slave checker on the node
+# ruby files to check and run servers
+# slave checker
 cookbook_file 'check_slave_capacity.rb' do
-	path '/home/ec2-user/check_slave_capacity.rb'
+	path "#{node.default['CBmaster']['dir']['docs']}/check_slave_capacity.rb"
 	action :create
 end
-
-# place the server launcher on the node
+# server launcher
 cookbook_file 'launch_new_slave.rb' do
-	path 'home/ec2-user/launch_new_slave.rb'
+	path "#{node.default['CBmaster']['dir']['docs']}/launch_new_slave.rb"
+	action :create
+end
+# main classe to call checker and launcher
+cookbook_file 'check_and_launch_server.rb' do
+	path "#{node.default['CBmaster']['dir']['docs']}/check_and_launch_server.rb"
+	action :create
+end
+# main class to check slave
+cookbook_file 'slave_info.rb' do
+	path "#{node.default['CBmaster']['dir']['docs']}/slave_info.rb"
+	action :create
+end
+# main class to get ip address list
+cookbook_file 'slave_ip_list.rb' do
+	path "#{node.default['CBmaster']['dir']['docs']}/slave_ip_list.rb"
+	action :create
+end
+cookbook_file 'get_any_slave_info.rb' do
+	path "#{node.default['CBmaster']['dir']['docs']}/get_any_slave_info.rb"
 	action :create
 end
 
-# place the access key on the node
-cookbook_file 'chefPair.pem' do
-	path '/home/ec2-user/chefPair.pem'
+# credentials required for ec2 and chef server
+# access key to slaves
+cookbook_file node.default['CBmaster']['aws']['ssh_key_pair'] do
+	path "#{node.default['CBmaster']['dir']['docs']}/#{node.default['CBmaster']['aws']['ssh_key_pair']}"
 	action :create
 end
-
-cookbook_file 'ciarancbbyrne-validator.pem' do
-	path '/home/ec2-user/ciarancbbyrne-validator.pem'
+# access key to chef server organisation
+cookbook_file node.default['CBmaster']['chef']['org_acc_key'] do
+	path "#{node.default['CBmaster']['dir']['docs']}/#{node.default['CBmaster']['chef']['org_acc_key']}"
 	action :create
 end
-
-cookbook_file 'flipdrop.pem' do
-	path '/home/ec2-user/flipdrop.pem'
+# access key to chef server
+cookbook_file node.default['CBmaster']['chef']['server_acc_key'] do
+	path "#{node.default['CBmaster']['dir']['docs']}/#{node.default['CBmaster']['chef']['server_acc_key']}"
 	action :create
 end
-
-cookbook_file 'knife.rb' do
-	path 'home/ec2-user/knife.rb'
+# knife settings for chef and ec2
+cookbook_file node.default['CBmaster']['chef']['knife_file'] do
+	path "#{node.default['CBmaster']['dir']['docs']}/#{node.default['CBmaster']['chef']['knife_file']}"
 	action :create
 end
