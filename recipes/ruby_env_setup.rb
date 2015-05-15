@@ -44,7 +44,3 @@ end
 gem_package 'chef' do
 	action :install
 end
-
-gem_package 'bundler' do
-	action :install
-end
