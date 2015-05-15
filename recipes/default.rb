@@ -22,3 +22,5 @@ include_recipe 'CBmaster::set_cron_jobs'
 include_recipe 'selinux::permissive'
 
 include_recipe 'CBmaster::web_setup'
+
+include_recipe 'minitest-handler'

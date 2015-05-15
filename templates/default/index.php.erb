@@ -21,50 +21,124 @@
 	<body>
 		<div class="container">
 			<div class="page-header">
-					<h1>Cloud Server Automation</h1>
+				<h1>Cloud Server Automation</h1>
+			</div>
+			<div class="row">
+
+				<!--Information paragraph-->
+				<div class="col-md-8" name="info">
 					<p>This page displays the slave servers that are available <br/>
 						to the master. By clicking on the private ip address in <br/>
 						the side-bar you can see how much space is on the slave.
 					</p>
+				</div>
+
+				<!--Launch a new Slave Server manually-->
+				<div class="col-md-4" name="launch-buttons">
+					<form name="launch-server" method="post" align="right" onsubmit="return confirm('Are you sure?')">
+						<p>Manually Launch a new server.<br/>
+							This will take some time (~ 5 mins!!).
+						</p>
+						<button type="submit" class"btn btn-warning" name="launch" value="100">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true">Launch</span>
+						</button>
+					</form>
+				</div>
 			</div>
 			<div class="row">
+
+				<!--List all Slave Servers in the system as Radio Buttons-->
 				<div class="col-md-2" name="sidebar">
 					<h5><span class="label label-primary">
 						<b>Slave Servers</b>
 					</span></h5>
 					<?php
-						$serverList = shell_exec('ruby /home/ec2-user/slave_ip_list.rb 2>&1');
+						// Run script to connect to Chef API and list ips
+						$serverList = shell_exec("ruby -r '/home/ec2-user/slave_ip_list.rb' -e 'IpFinder.new.list_ips' 2>&1");
 						$split = explode("\n", $serverList);
 					?>
 					<form name="server-picked" method="post">
 						<?php
 						$size = count($split);
-						for($x = 0 ; $x < $size-1 ; $x++){
-							?><div class="radio">
-								<label><input type="radio" name="radbtn" value="<?php echo $x; ?>"><?php echo $split[$x]; ?></label>
-							</div>
+						if($size > 0){
+							for($x = 0 ; $x < $size-1 ; $x++){
+								?><div class="radio">
+									<label><input type="radio" name="radbtn" value="<?php echo $x; ?>"><?php echo $split[$x]; ?></label>
+								</div>
+								<?php
+							}
+						}else{
+							?>
+							<p>No Slaves Connected</p>
+
 							<?php
 						}
 						?>
+
+				<!--Check space used on Slave chosen-->
 						<div class="btn">
-							<button type="submit" class="btn btn-default">
+							<button type="submit" class="btn btn-primary">
 								<span class="glyphicon glyphicon-search" aria-hidden="true">Search</span>
 							</button>
 						</div>
 					</form>
 				</div>
 
+				<!--Display Page Actions-->
 				<div class="col-md-10" name="content">
 					<?php
-					if(isset($_POST['radbtn'])){
+
+					// Launch New Server
+					if(isset($_POST['launch'])){
+					?>
+					<div class="alert alert-info" role="alert">
+					<?php
+						// Run Ruby script to launch new slave
+						$display = shell_exec("cd /home/ec2-user && ruby -r './check_and_launch_server.rb' -e 'CheckAndLaunch.new.track' 100");
+						echo "<pre>$display</pre>";
+					?>
+					</div>
+					<?php
+					}
+
+					// Get Slave Info and Display Delete Button
+					elseif(isset($_POST['radbtn'])){
 					?>							
 					<div class="alert alert-info" role="alert">
 					<?php
 						$i = $_POST['radbtn'];
-						$cmd = "ruby /home/ec2-user/get_any_slave_info.rb $split[$i] 2>&1";
+						// Run Ruby script to get space info on chosen slave
+						$cmd = "ruby -r '/home/ec2-user/get_any_slave_info.rb' -e 'GetSlaveInfo.new.get_info' $split[$i] 2>&1";
 						$output = shell_exec($cmd);
 						echo "<pre>$output</pre>";
-						echo exec('whoami');
+					?>
+
+					<!--Delete Slave Button-->
+						<form name="delete-server" method="post" onsubmit="return confirm('Are you sure you want to delete?')">
+							<p>Delete this server.<br/>
+								This will destroy all information.
+							</p>
+							<input type="hidden" name="delete" value="<?php echo $split[$i]; ?>">
+							<button type="submit" class"btn btn-warning">
+								<span class="glyphicon glyphicon-ok" aria-hidden="true">Delete</span>
+							</button>
+						</form>
+					</div>
+					<?php
+					}
+
+					// Delete Chosen Slave
+					elseif(isset($_POST['delete'])){
+					?>
+					<div class="alert alert-info" role="alert">
+					<?php
+						$ip_add = $_POST['delete'];
+						echo "$ip_add deleted";
+
+						// Run Ruby script to delete slave
+						$del = "ruby -r '/home/ec2-user/delete_slave.rb' -e 'DropSlave.new.delete' $ip_add";
+						$run = shell_exec($del);
+						echo "<pre>$run</pre>";
 					?>
 					</div>
 					<?php
@@ -72,7 +146,7 @@
 					?>
 				</div>
 			</div>
-				Copyright ciaranCBbyrne
+				&copy;ciaranCBbyrne 2015
 		</div>
 	</body>
 </html>

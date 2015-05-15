@@ -15,9 +15,15 @@ web_app 'display' do
 	template 'display.conf.erb'
 end
 
+directory node.default['CBmaster']['dir']['web'] do
+	owner "#{node.default['CBmaster']['user']['owner']}"
+	action :create
+end
+
 # allow access to ruby files from index.php
 directory node.default['CBmaster']['dir']['docs'] do
-	mode '755'
+	mode "#{node.default['CBmaster']['user']['mode']}"
+	owner "#{node.default['CBmaster']['user']['owner']}"
 end
 
 # create document root
@@ -35,8 +41,8 @@ end
 template "#{node.default['CBmaster']['dir']['web']}/index.php" do
 	source 'index.php.erb'
 	mode '0644'
-	owner 'root'
-	group 'root'
+	owner "#{node.default['CBmaster']['user']['owner']}"
+	group 'ec2-user'
 end
 
 include_recipe 'iptables'
